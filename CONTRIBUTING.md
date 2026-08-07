@@ -5,7 +5,7 @@ Thanks for your interest in contributing! Here's how to get started.
 ## Development Setup
 
 ```bash
-git clone https://github.com/grabowskiadrian/scavier.git
+git clone https://github.com/grabowskiadrian/scavier-engine.git
 cd scavier
 composer install
 php -S localhost:8000 -t public
@@ -54,7 +54,7 @@ The detector is auto-discovered — no registration needed.
 
 ## Reporting Issues
 
-Use [GitHub Issues](https://github.com/grabowskiadrian/scavier/issues). Include:
+Use [GitHub Issues](https://github.com/grabowskiadrian/scavier-engine/issues). Include:
 - What you expected to happen
 - What actually happened
 - Steps to reproduce

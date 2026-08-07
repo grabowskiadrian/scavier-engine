@@ -8,12 +8,14 @@ Open-source **Website Intelligence Engine**. Analyzes any public URL and returns
 
 **What it detects:** CMS, frameworks, libraries, analytics, hosting provider, CDN, DNS, SSL/TLS, security headers, email security, e-commerce platforms, payment providers, CRM, chat widgets, A/B testing tools, social profiles, company data, SEO health, AI readiness, and much more — **44 detectors** across 8 categories.
 
+![ScavierEngine Web UI](doc/screenshot.png)
+
 ## Quick Start
 
 ### Docker (recommended)
 
 ```bash
-git clone https://github.com/grabowskiadrian/scavier.git
+git clone https://github.com/grabowskiadrian/scavier-engine-engine.git
 cd scavier
 docker compose up -d
 ```
@@ -25,7 +27,7 @@ Scavier is now running at `http://localhost:8000`.
 Requires PHP 8.3+ with `curl` and `dom` extensions. System tools: `dig`, `openssl`, `whois`.
 
 ```bash
-git clone https://github.com/grabowskiadrian/scavier.git
+git clone https://github.com/grabowskiadrian/scavier-engine.git
 cd scavier
 composer install
 php -S localhost:8000 -t public
