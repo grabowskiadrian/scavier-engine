@@ -15,7 +15,7 @@ Open-source **Website Intelligence Engine**. Analyzes any public URL and returns
 ### Docker (recommended)
 
 ```bash
-git clone https://github.com/grabowskiadrian/scavier-engine-engine.git
+git clone https://github.com/grabowskiadrian/scavier-engine.git
 cd scavier
 docker compose up -d
 ```
