@@ -1,0 +1,14 @@
+/vendor/
+
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+notes/
+.claude
+
+.env
+.phpunit.result.cache
+.phpunit.cache/

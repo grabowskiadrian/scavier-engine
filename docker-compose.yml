@@ -1,0 +1,11 @@
+services:
+  scavier:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./templates:/app/templates
+      - ./public:/app/public
+    shm_size: '256m'
+    restart: unless-stopped
