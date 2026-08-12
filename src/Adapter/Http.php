@@ -67,6 +67,12 @@ final class Http
         $response = $handler->handle($_GET);
 
         http_response_code($response['status']);
+
+        $noPersist = isset($_GET['no_persist']) || isset($_SERVER['HTTP_X_SCAVIER_NO_PERSIST']);
+        if ($response['status'] === 200 && !$noPersist) {
+            self::persistScan($response['body']);
+        }
+
         echo json_encode($response['body'], JSON_PRETTY_PRINT);
     }
 
@@ -110,6 +116,36 @@ final class Http
         header('Content-Type: application/json');
         http_response_code(404);
         echo json_encode(['error' => 'Not found']);
+    }
+
+    public static function persistScan(array $body, string $source = 'api'): void
+    {
+        $dir = getenv('SCAVIER_SCAN_DIR') ?: '/data/scans';
+
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0777, true);
+        }
+
+        if (!is_writable($dir)) {
+            return;
+        }
+
+        $uuid = bin2hex(random_bytes(16));
+        $uuid = sprintf(
+            '%s-%s-%s-%s-%s',
+            substr($uuid, 0, 8),
+            substr($uuid, 8, 4),
+            substr($uuid, 12, 4),
+            substr($uuid, 16, 4),
+            substr($uuid, 20, 12)
+        );
+
+        $body['_scan_id'] = $uuid;
+        $body['_source'] = $source;
+        $body['_scanned_at'] = date('c');
+
+        $json = json_encode($body, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        @file_put_contents($dir . '/' . $uuid . '.json', $json);
     }
 
     private static function checkRateLimit(): bool

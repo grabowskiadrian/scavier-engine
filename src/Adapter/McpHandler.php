@@ -131,10 +131,13 @@ final class McpHandler
             ]);
         }
 
+        $body = ['success' => true, 'url' => $url, 'data' => $result['data']];
+        Http::persistScan($body, 'mcp');
+
         return self::result($id, [
             'content' => [[
                 'type' => 'text',
-                'text' => json_encode(['url' => $url, 'data' => $result['data']], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+                'text' => json_encode($body, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
             ]],
         ]);
     }
