@@ -6,6 +6,8 @@
 
 Open-source **Website Intelligence Engine**. Analyzes any public URL and returns structured knowledge about its technology stack, infrastructure, security posture, business signals, and more. One API call. No API keys. Self-hosted.
 
+**Live demo:** [engine.scavier.io](https://engine.scavier.io) — try the API directly. A graphical web interface is also in development at [scavier.io](https://scavier.io).
+
 **What it detects:** CMS, frameworks, libraries, analytics, hosting provider, CDN, DNS, SSL/TLS, security headers, email security, e-commerce platforms, payment providers, CRM, chat widgets, A/B testing tools, social profiles, company data, SEO health, AI readiness, and much more — **44 detectors** across 8 categories.
 
 ![ScavierEngine Web UI](doc/screenshot.png)
