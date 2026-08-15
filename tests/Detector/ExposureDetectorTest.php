@@ -19,6 +19,7 @@ final class ExposureDetectorTest extends TestCase
 
         $this->assertSame('/.env', $result['audit']['exposures'][0]['path']);
         $this->assertSame('critical', $result['audit']['exposures'][0]['risk']);
+        $this->assertContains('EnvExposed', $result['_tags']);
     }
 
     public function testDetectsExposedGitRepo(): void
@@ -29,6 +30,7 @@ final class ExposureDetectorTest extends TestCase
         $result = (new ExposureDetector())->detect($context);
 
         $this->assertSame('/.git/HEAD', $result['audit']['exposures'][0]['path']);
+        $this->assertContains('GitExposed', $result['_tags']);
     }
 
     public function testIgnoresFalsePositiveEnv(): void
@@ -75,6 +77,7 @@ final class ExposureDetectorTest extends TestCase
         $this->assertSame(1.0, $exposures[0]['confidence']);
         $this->assertContains('ns1.example.com', $exposures[0]['vulnerable_nameservers']);
         $this->assertSame(2, $exposures[0]['discovered_records']);
+        $this->assertSame(['DnsZoneTransferVulnerable'], $result['_tags']);
     }
 
     public function testCombinesFileAndZoneTransferExposures(): void
@@ -93,5 +96,8 @@ final class ExposureDetectorTest extends TestCase
         $result = (new ExposureDetector())->detect($context);
 
         $this->assertCount(2, $result['audit']['exposures']);
+        $this->assertContains('EnvExposed', $result['_tags']);
+        $this->assertContains('DnsZoneTransferVulnerable', $result['_tags']);
+        $this->assertCount(2, $result['_tags']);
     }
 }

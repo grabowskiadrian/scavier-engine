@@ -68,7 +68,17 @@ class ExposureDetector extends Detector
             return null;
         }
 
-        return ['audit' => ['exposures' => $exposures]];
+        $tags = array_map(fn(array $e) => match ($e['path']) {
+            '/.git/HEAD' => 'GitExposed',
+            '/.env' => 'EnvExposed',
+            'DNS AXFR' => 'DnsZoneTransferVulnerable',
+            default => null,
+        }, $exposures);
+
+        return [
+            'audit' => ['exposures' => $exposures],
+            '_tags' => array_values(array_filter($tags)),
+        ];
     }
 
     private function validateExposure(string $path, ?string $body): bool
