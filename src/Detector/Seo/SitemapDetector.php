@@ -31,6 +31,14 @@ class SitemapDetector extends Detector
             'evidence' => $exists ? 'sitemap.xml found' : 'sitemap.xml not found',
         ];
 
+        // Reject non-XML responses (redirect to homepage)
+        if ($exists && $body !== null && !str_contains($body, '<?xml') && !str_contains($body, '<urlset') && !str_contains($body, '<sitemapindex')) {
+            $exists = false;
+            $body = null;
+            $result['exists'] = false;
+            $result['evidence'] = 'sitemap.xml returned non-XML content (likely redirect)';
+        }
+
         if ($exists && $body !== null) {
             // Check if it's a sitemap index
             $isIndex = str_contains($body, '<sitemapindex');

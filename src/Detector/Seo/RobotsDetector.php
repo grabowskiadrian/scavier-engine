@@ -46,6 +46,14 @@ class RobotsDetector extends Detector
             'evidence' => $exists ? 'robots.txt found' : 'robots.txt not found or returned error',
         ];
 
+        // Reject HTML responses (redirect to homepage)
+        if ($exists && $body !== null && preg_match('/<(!DOCTYPE|html|head|body)/i', $body)) {
+            $exists = false;
+            $body = null;
+            $result['exists'] = false;
+            $result['evidence'] = 'robots.txt returned HTML (likely redirect)';
+        }
+
         if ($exists && $body !== null) {
             $rules = [];
             $sitemaps = [];

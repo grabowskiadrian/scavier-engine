@@ -28,6 +28,11 @@ class SecurityTxtDetector extends Detector
 
         $body = $discovery->body('/.well-known/security.txt');
 
+        // Reject HTML responses (redirect to homepage)
+        if ($body !== null && preg_match('/<(!DOCTYPE|html|head|body)/i', $body)) {
+            return null;
+        }
+
         $result = [
             'exists' => true,
             'confidence' => 1.0,

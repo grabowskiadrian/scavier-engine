@@ -32,6 +32,13 @@ class SubdomainDnsCollector extends Collector
         }
 
         $domain = $this->extractRegistrableDomain($host);
+
+        // Detect wildcard DNS — if a random subdomain resolves, all results are unreliable
+        $canary = 'xz9q7w3k5m2j8v' . bin2hex(random_bytes(4)) . '.' . $domain;
+        if ($this->resolve($canary) !== null) {
+            return;
+        }
+
         $resolved = [];
         $failed = [];
 
