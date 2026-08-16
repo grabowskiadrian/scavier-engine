@@ -98,7 +98,7 @@ class AdsTxtDetector extends Detector
                     'evidence' => 'ads.txt found and parsed',
                 ],
             ],
-            '_tags' => $exchangeNames,
+            '_tags' => ['AdsTxt'],
         ];
     }
 }
