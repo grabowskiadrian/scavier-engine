@@ -25,52 +25,51 @@ class AiReadinessDetector extends Detector
 
         $result = [];
 
-        // llms.txt
+        // llms.txt — must not be HTML (redirect to homepage)
+        $llmsBody = $discovery->exists('/llms.txt') ? $discovery->body('/llms.txt') : null;
+        $llmsValid = $llmsBody !== null && !$this->isHtml($llmsBody);
+
         $result['llms_txt'] = [
-            'exists' => $discovery->exists('/llms.txt'),
+            'exists' => $llmsValid,
         ];
 
-        if ($discovery->exists('/llms.txt')) {
-            $body = $discovery->body('/llms.txt');
-            if ($body !== null) {
-                // Extract title (first # heading)
-                if (preg_match('/^#\s+(.+)/m', $body, $m)) {
-                    $result['llms_txt']['title'] = trim($m[1]);
-                }
-                $result['llms_txt']['size_bytes'] = strlen($body);
+        if ($llmsValid) {
+            if (preg_match('/^#\s+(.+)/m', $llmsBody, $m)) {
+                $result['llms_txt']['title'] = trim($m[1]);
             }
+            $result['llms_txt']['size_bytes'] = strlen($llmsBody);
         }
 
-        // MCP server
+        // MCP server — must be valid JSON
+        $mcpBody = $discovery->exists('/.well-known/mcp.json') ? $discovery->body('/.well-known/mcp.json') : null;
+        $mcpData = $mcpBody !== null ? json_decode($mcpBody, true) : null;
+        $mcpValid = is_array($mcpData);
+
         $result['mcp_server'] = [
-            'exists' => $discovery->exists('/.well-known/mcp.json'),
+            'exists' => $mcpValid,
         ];
 
-        if ($discovery->exists('/.well-known/mcp.json')) {
-            $body = $discovery->body('/.well-known/mcp.json');
-            if ($body !== null) {
-                $data = json_decode($body, true);
-                if (is_array($data)) {
-                    $result['mcp_server']['endpoint'] = $data['url'] ?? $data['endpoint'] ?? null;
-                }
-            }
+        if ($mcpValid) {
+            $result['mcp_server']['endpoint'] = $mcpData['url'] ?? $mcpData['endpoint'] ?? null;
         }
 
-        // API discovery
-        $hasOpenApi = $discovery->exists('/openapi.json') || $discovery->exists('/swagger.json');
+        // API discovery — must be valid JSON
+        $apiBody = null;
+        if ($discovery->exists('/openapi.json')) {
+            $apiBody = $discovery->body('/openapi.json');
+        } elseif ($discovery->exists('/swagger.json')) {
+            $apiBody = $discovery->body('/swagger.json');
+        }
+        $apiData = $apiBody !== null ? json_decode($apiBody, true) : null;
+        $hasOpenApi = is_array($apiData);
+
         $result['api_docs'] = [
             'exists' => $hasOpenApi,
         ];
 
         if ($hasOpenApi) {
-            $body = $discovery->body('/openapi.json') ?? $discovery->body('/swagger.json');
-            if ($body !== null) {
-                $data = json_decode($body, true);
-                if (is_array($data)) {
-                    $result['api_docs']['title'] = $data['info']['title'] ?? null;
-                    $result['api_docs']['version'] = $data['info']['version'] ?? null;
-                }
-            }
+            $result['api_docs']['title'] = $apiData['info']['title'] ?? null;
+            $result['api_docs']['version'] = $apiData['info']['version'] ?? null;
         }
 
         // AI bot blocking from robots detector
@@ -85,5 +84,10 @@ class AiReadinessDetector extends Detector
         }
 
         return ['technology' => ['ai_readiness' => $result]];
+    }
+
+    private function isHtml(string $body): bool
+    {
+        return (bool) preg_match('/<(!DOCTYPE|html|head|body)/i', $body);
     }
 }

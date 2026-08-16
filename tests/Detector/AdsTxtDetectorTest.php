@@ -38,4 +38,27 @@ final class AdsTxtDetectorTest extends TestCase
 
         $this->assertNull((new AdsTxtDetector())->detect($context));
     }
+
+    public function testReturnsNullWhenAdsTxtIsHtml(): void
+    {
+        $html = '<!DOCTYPE html><html><head><style>body{color:red}</style></head><body><script>var x = "a,b,c";</script></body></html>';
+
+        $context = new Context();
+        $context->set(new DiscoveryData(['/ads.txt' => ['status' => 200, 'body' => $html]]));
+
+        $this->assertNull((new AdsTxtDetector())->detect($context));
+    }
+
+    public function testIgnoresLinesWithInvalidDomains(): void
+    {
+        $body = "google.com, pub-123, DIRECT, f08c47fec0942fa0\nnot-a-domain!!, foo, bar\n";
+
+        $context = new Context();
+        $context->set(new DiscoveryData(['/ads.txt' => ['status' => 200, 'body' => $body]]));
+
+        $result = (new AdsTxtDetector())->detect($context);
+
+        $this->assertSame(1, $result['marketing']['ads_txt']['entries']);
+        $this->assertContains('Google', $result['marketing']['ads_txt']['exchanges']);
+    }
 }

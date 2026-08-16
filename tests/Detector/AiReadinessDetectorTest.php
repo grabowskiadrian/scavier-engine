@@ -46,6 +46,45 @@ final class AiReadinessDetectorTest extends TestCase
         $this->assertContains('GPTBot', $result['technology']['ai_readiness']['ai_crawler_policy']['blocked_bots']);
     }
 
+    public function testRejectsLlmsTxtWhenHtml(): void
+    {
+        $html = '<!DOCTYPE html><html><body>Not found</body></html>';
+
+        $context = new Context();
+        $context->set(new DiscoveryData(['/llms.txt' => ['status' => 200, 'body' => $html]]));
+        $context->setDetectorResult(RobotsDetector::class, ['seo' => ['robots' => ['ai_bots' => ['blocks_ai_crawlers' => false, 'blocked' => []]]]]);
+
+        $result = (new AiReadinessDetector())->detect($context);
+
+        $this->assertFalse($result['technology']['ai_readiness']['llms_txt']['exists']);
+    }
+
+    public function testRejectsMcpJsonWhenHtml(): void
+    {
+        $html = '<!DOCTYPE html><html><body>Redirected</body></html>';
+
+        $context = new Context();
+        $context->set(new DiscoveryData(['/.well-known/mcp.json' => ['status' => 200, 'body' => $html]]));
+        $context->setDetectorResult(RobotsDetector::class, ['seo' => ['robots' => ['ai_bots' => ['blocks_ai_crawlers' => false, 'blocked' => []]]]]);
+
+        $result = (new AiReadinessDetector())->detect($context);
+
+        $this->assertFalse($result['technology']['ai_readiness']['mcp_server']['exists']);
+    }
+
+    public function testRejectsOpenApiWhenHtml(): void
+    {
+        $html = '<html><body>Login page</body></html>';
+
+        $context = new Context();
+        $context->set(new DiscoveryData(['/openapi.json' => ['status' => 200, 'body' => $html]]));
+        $context->setDetectorResult(RobotsDetector::class, ['seo' => ['robots' => ['ai_bots' => ['blocks_ai_crawlers' => false, 'blocked' => []]]]]);
+
+        $result = (new AiReadinessDetector())->detect($context);
+
+        $this->assertFalse($result['technology']['ai_readiness']['api_docs']['exists']);
+    }
+
     public function testReportsNoAiFeatures(): void
     {
         $context = new Context();

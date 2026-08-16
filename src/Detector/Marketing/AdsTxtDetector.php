@@ -46,6 +46,11 @@ class AdsTxtDetector extends Detector
             return null;
         }
 
+        // Reject HTML responses (redirect to homepage, error pages, etc.)
+        if (preg_match('/<(!DOCTYPE|html|head|body|script|style)/i', $body)) {
+            return null;
+        }
+
         $entries = 0;
         $exchanges = [];
 
@@ -59,9 +64,14 @@ class AdsTxtDetector extends Detector
             $parts = explode(',', $line);
 
             if (count($parts) >= 3) {
-                $entries++;
                 $domain = strtolower(trim($parts[0]));
 
+                // Validate domain format (must look like a domain, not HTML fragments)
+                if (!preg_match('/^[a-z0-9]([a-z0-9-]*\.)+[a-z]{2,}$/', $domain)) {
+                    continue;
+                }
+
+                $entries++;
                 $name = self::KNOWN_EXCHANGES[$domain] ?? $domain;
 
                 if (!isset($exchanges[$name])) {
